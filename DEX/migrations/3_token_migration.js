@@ -1,15 +1,15 @@
 const Link = artifacts.require("Link");
-const Wallet = artifacts.require("Wallet");
-module.exports = async function (deployer, network, accounts) {
+const ETH = artifacts.require("ETH");
+const Dex = artifacts.require("Dex");
+module.exports = async function (deployer,network, accounts) {
   await deployer.deploy(Link);
-  let wallet = await Wallet.deployed()
-  let link = await Link.deployed()
-  await link.approve(wallet.address, 500)
-  wallet.addToken(web3.utils.fromUtf8("LINK"), link.address)
-  await wallet.deposit(100, web3.utils.fromUtf8("LINK"))
-  let balanceOfLink = await wallet.balances(accounts[0], web3.utils.fromUtf8("LINK"))
-  console.log(balanceOfLink)
-
-
-
+  await deployer.deploy(ETH);
+  await deployer.deploy(Dex);
+  let dex = await Dex.deployed()
+  let eth = await ETH.deployed()
+  await eth.approve(dex.address, 5000)
+  dex.addToken(web3.utils.fromUtf8("ETH"), eth.address)
+  // await dex.deposit(web3.utils.fromUtf8("LINK"),100)
+  // let balanceOfLink = await dex.getBalance(accounts[0], web3.utils.fromUtf8("LINK"))
+  // console.log("balanceOfLink: "+balanceOfLink)
 };

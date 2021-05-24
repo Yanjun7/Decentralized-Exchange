@@ -14,11 +14,19 @@ contract Wallet is Ownable {
     mapping(bytes32 => Token) public tokenMapping; //in order to quickily search and update
     bytes32[] public tokenList; // in order to iterate
 
-    mapping(address => mapping(bytes32 => uint256)) balances; // address=> tokenSymbol=> balances
+    mapping(address => mapping(bytes32 => uint256)) public balances; // address=> tokenSymbol=> balances
 
     modifier isTokenExists(bytes32 ticker) {
         require(tokenMapping[ticker].tokenAddress != address(0));
         _;
+    }
+
+    function getBalance(address _address, bytes32 ticker)
+        public
+        view
+        returns (uint256)
+    {
+        return balances[_address][ticker];
     }
 
     function addToken(bytes32 ticker, address tokenAddress) external onlyOwner {
@@ -26,7 +34,7 @@ contract Wallet is Ownable {
         tokenList.push(ticker);
     }
 
-    function deposit(bytes32 ticker, uint256 amount)
+    function deposit(uint256 amount, bytes32 ticker)
         external
         isTokenExists(ticker)
     {
@@ -38,7 +46,11 @@ contract Wallet is Ownable {
         balances[msg.sender][ticker] = balances[msg.sender][ticker].add(amount);
     }
 
-    function withdraw(bytes32 ticker, uint256 amount)
+    // function depositETH(uint256 amount) external {
+    //     deposit(amount, "ETH");
+    // }
+
+    function withdraw(uint256 amount, bytes32 ticker)
         external
         isTokenExists(ticker)
     {

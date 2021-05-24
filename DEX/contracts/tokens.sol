@@ -7,3 +7,9 @@ contract Link is ERC20 {
         _mint(msg.sender, 1000);
     }
 }
+
+contract ETH is ERC20 {
+    constructor() ERC20("Ethereum", "ETH") {
+        _mint(msg.sender, 1000);
+    }
+}
