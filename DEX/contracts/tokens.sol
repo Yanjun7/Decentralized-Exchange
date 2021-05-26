@@ -4,12 +4,12 @@ import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract Link is ERC20 {
     constructor() ERC20("ChainLink", "Link") {
-        _mint(msg.sender, 2000);
+        _mint(msg.sender, 20000);
     }
 }
 
-contract ETH is ERC20 {
-    constructor() ERC20("Ethereum", "ETH") {
-        _mint(msg.sender, 1000);
-    }
-}
+// contract ETH is ERC20 {
+//     constructor() ERC20("Ethereum", "ETH") {
+//         _mint(msg.sender, 1000);
+//     }
+// }

@@ -3,22 +3,22 @@
 // The BUY order book should be ordered on price from the highest to the lowest starting at index 0
 const Dex = artifacts.require("Dex")
 const Link = artifacts.require("Link")
-const ETH = artifacts.require("ETH")
+
 const truffleAssert = require("truffle-assertions")
 
-contract("Dex", accounts=>{
+contract.skip("Dex-limit-order", accounts=>{
     it("The user must have ETH deposited such that deposited ETH >= buy order value", async()=>{
         let dex = await Dex.deployed()
         let link = await Link.deployed()
-        let eth = await ETH.deployed()
+ 
         await truffleAssert.reverts(
             dex.createLimitOrder(0, web3.utils.fromUtf8("LINK"),10, 1)
         )        
-        await dex.deposit(500, web3.utils.fromUtf8("ETH"))
+        await dex.depositEth({value:5000})
         
-        // await truffleAssert.passes(
-        //     dex.createLimitOrder(0, web3.utils.fromUtf8("LINK"),10, 1)
-        // )
+        await truffleAssert.passes(
+            dex.createLimitOrder(0, web3.utils.fromUtf8("LINK"),10, 1)
+        )
     })
     it("The user must have token deposited such that deposited token >= sell order amount", async()=>{
         let dex = await Dex.deployed()
@@ -29,7 +29,7 @@ contract("Dex", accounts=>{
         
         await link.approve(dex.address, 2000) // should not exceed 2000 mint value
         await dex.addToken(web3.utils.fromUtf8("LINK"), link.address,{from: accounts[0]})
-        dex.deposit(2000, web3.utils.fromUtf8("LINK")) //approve and deposit 2000 will fail???
+        dex.deposit(2000, web3.utils.fromUtf8("LINK")) 
         
         // await truffleAssert.passes(
         //     dex.createLimitOrder(1, web3.utils.fromUtf8("LINK"),20, 1)
@@ -38,7 +38,7 @@ contract("Dex", accounts=>{
     it("The BUY order book should be ordered on price from the highest to the lowest", async()=>{
         let dex = await Dex.deployed()
         let link = await Link.deployed()
-        await link.approve(dex.address, 200)
+        //await link.approve(dex.address, 200)
         await dex.createLimitOrder(0, web3.utils.fromUtf8("LINK"),1,16)
         await dex.createLimitOrder(0, web3.utils.fromUtf8("LINK"),1,19)
         await dex.createLimitOrder(0, web3.utils.fromUtf8("LINK"),1,12)
@@ -71,3 +71,4 @@ contract("Dex", accounts=>{
       
     })
 }) 
+

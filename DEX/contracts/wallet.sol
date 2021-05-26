@@ -46,9 +46,12 @@ contract Wallet is Ownable {
         balances[msg.sender][ticker] = balances[msg.sender][ticker].add(amount);
     }
 
-    // function depositETH(uint256 amount) external {
-    //     deposit(amount, "ETH");
-    // }
+    function depositEth() external payable {
+        balances[msg.sender][bytes32("ETH")] = balances[msg.sender][
+            bytes32("ETH")
+        ]
+            .add(msg.value);
+    }
 
     function withdraw(uint256 amount, bytes32 ticker)
         external
