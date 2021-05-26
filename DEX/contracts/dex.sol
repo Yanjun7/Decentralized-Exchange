@@ -50,25 +50,47 @@ contract Dex is Wallet {
         orders.push(
             Order(nextOrderId, side, msg.sender, ticker, amount, price)
         );
-        //bubbleSort
-
+        // //bubbleSort
+        uint256 i = orders.length > 0 ? orders.length - 1 : 0;
         if (side == Side.BUY) {
-            uint256 i = orders.length - 2;
-            while (orders[orders.length - 1].price > orders[i].price && i > 0) {
-                Order memory left = orders[i];
-                orders[i] = orders[orders.length - 1];
-                orders[orders.length - 1] = left;
+            while (i > 0) {
+                if (orders[i].price < orders[i - 1].price) {
+                    break;
+                }
+                Order memory toBeMoved = orders[i - 1];
+                orders[i - 1] = orders[i];
+                orders[i] = toBeMoved;
                 i--;
             }
         } else if (side == Side.SELL) {
-            uint256 i = orders.length - 2;
-            while (orders[orders.length - 1].price < orders[i].price && i > 0) {
-                Order memory left = orders[i];
-                orders[i] = orders[orders.length - 1];
-                orders[orders.length - 1] = left;
+            while (i > 0) {
+                if (orders[i].price > orders[i - 1].price) {
+                    break;
+                }
+                Order memory toBeMoved = orders[i - 1];
+                orders[i - 1] = orders[i];
+                orders[i] = toBeMoved;
                 i--;
             }
         }
+
+        // if (side == Side.BUY) {
+        //     uint256 i = orders.length > 1 ? orders.length - 2 : 0;
+        //     while (orders[orders.length - 1].price > orders[i].price && i > 0) {
+        //         Order memory left = orders[i];
+        //         orders[i] = orders[orders.length - 1];
+        //         orders[orders.length - 1] = left;
+        //         i--;
+        //     }
+        // } else if (side == Side.SELL) {
+        //     uint256 i = orders.length > 1 ? orders.length - 2 : 0;
+        //     while (orders[orders.length - 1].price < orders[i].price && i > 0) {
+        //         Order memory left = orders[i];
+        //         orders[i] = orders[orders.length - 1];
+        //         orders[orders.length - 1] = left;
+        //         i--;
+        //     }
+        // }
 
         nextOrderId++;
     }

@@ -14,11 +14,11 @@ contract("Dex", accounts=>{
         await truffleAssert.reverts(
             dex.createLimitOrder(0, web3.utils.fromUtf8("LINK"),10, 1)
         )        
-        await dex.deposit(100, web3.utils.fromUtf8("ETH"))
+        await dex.deposit(500, web3.utils.fromUtf8("ETH"))
         
-        await truffleAssert.passes(
-            dex.createLimitOrder(0, web3.utils.fromUtf8("LINK"),10, 1)
-        )
+        // await truffleAssert.passes(
+        //     dex.createLimitOrder(0, web3.utils.fromUtf8("LINK"),10, 1)
+        // )
     })
     it("The user must have token deposited such that deposited token >= sell order amount", async()=>{
         let dex = await Dex.deployed()
@@ -27,25 +27,46 @@ contract("Dex", accounts=>{
             dex.createLimitOrder(1, web3.utils.fromUtf8("LINK"),20, 1)
         ) 
         
-        await link.approve(dex.address, 200)
+        await link.approve(dex.address, 2000) // should not exceed 2000 mint value
         await dex.addToken(web3.utils.fromUtf8("LINK"), link.address,{from: accounts[0]})
-
-        await truffleAssert.passes(
-            dex.deposit(100, web3.utils.fromUtf8("LINK"))
-        )
-        await truffleAssert.passes(
-            dex.createLimitOrder(1, web3.utils.fromUtf8("LINK"),20, 1)
-        )
+        dex.deposit(2000, web3.utils.fromUtf8("LINK")) //approve and deposit 2000 will fail???
+        
+        // await truffleAssert.passes(
+        //     dex.createLimitOrder(1, web3.utils.fromUtf8("LINK"),20, 1)
+        // )
     })
     it("The BUY order book should be ordered on price from the highest to the lowest", async()=>{
         let dex = await Dex.deployed()
         let link = await Link.deployed()
-        let order1 = await dex.createLimitOrder(0, web3.utils.fromUtf8("LINK"),5,7)
-        let order2 = await dex.createLimitOrder(0, web3.utils.fromUtf8("LINK"),5,9)
-        let order3 = await dex.createLimitOrder(0, web3.utils.fromUtf8("LINK"),5,3)
-        let orders = await dex.getOrderBook(web3.utils.fromUtf8("LINK"), 0)
-        for (let i=0; i++; i<orders.length-1){
-            assert(orders[i].price > orders[i+1].price);
+        await link.approve(dex.address, 200)
+        await dex.createLimitOrder(0, web3.utils.fromUtf8("LINK"),1,16)
+        await dex.createLimitOrder(0, web3.utils.fromUtf8("LINK"),1,19)
+        await dex.createLimitOrder(0, web3.utils.fromUtf8("LINK"),1,12)
+        await dex.createLimitOrder(0, web3.utils.fromUtf8("LINK"),1,13)
+        let buyBook = await dex.getOrderBook(web3.utils.fromUtf8("LINK"), 0)
+        assert(buyBook.length>0, "no orders")
+        console.log(buyBook)
+        for (let i=0; i<buyBook.length-1; i++){
+            console.log(buyBook[i].price)
+            assert(buyBook[i].price >= buyBook[i+1].price, "the order is not right in buy book");
+            
+        }
+    })
+    it("The SELL order book should be ordered on price from the lowest to the highest", async()=>{
+        let dex = await Dex.deployed()
+        let link = await Link.deployed()
+        await dex.createLimitOrder(1, web3.utils.fromUtf8("LINK"),1,13)
+        await dex.createLimitOrder(1, web3.utils.fromUtf8("LINK"),1,11)
+        await dex.createLimitOrder(1, web3.utils.fromUtf8("LINK"),1,17)
+        await dex.createLimitOrder(1, web3.utils.fromUtf8("LINK"),1,19)
+        await dex.createLimitOrder(1, web3.utils.fromUtf8("LINK"),1,13)
+        
+        let sellBook = await dex.getOrderBook(web3.utils.fromUtf8("LINK"), 1)
+        //assert(sellBook.length>0, "no orders")
+        //console.log(sellBook)
+        for (let i=0;i<sellBook.length-1; i++){
+            console.log(sellBook[i].price)
+            assert(sellBook[i].price <= sellBook[i+1].price,"the order is not right in sell book");
         }
       
     })
